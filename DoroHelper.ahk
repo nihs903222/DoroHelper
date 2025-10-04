@@ -16,7 +16,7 @@ if !A_IsAdmin {
 }
 ;region 设置常量
 try TraySetIcon "doro.ico"
-currentVersion := "v1.7.6"
+currentVersion := "v1.7.7"
 ;tag 检查脚本哈希
 SplitPath A_ScriptFullPath, , , &scriptExtension
 scriptExtension := StrLower(scriptExtension)
@@ -2677,6 +2677,8 @@ ToggleSetting(settingKey, guiCtrl, *) {
     global g_settings
     ;切换值 (0 变 1, 1 变 0)
     g_settings[settingKey] := 1 - g_settings[settingKey]
+    ; 每次勾选后都保存数据
+    WriteSettings()
     ;可选: 如果需要，可以在这里添加日志记录
     ;ToolTip("切换 " settingKey " 为 " g_settings[settingKey])
 }

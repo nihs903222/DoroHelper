@@ -49,5 +49,5 @@ jobs:
           list=$(./BaiduPCS-Go ls /Doro_Helper | awk '{print $NF}' | sort -r | tail -n +4)
           for old in $list; do
             echo "刪除舊版本：$old"
-            ./BaiduPCS-Go rm -r "/Doro_Helper/$old"
+            BaiduPCS-Go rm -r "/Doro_Helper/$old"
           done

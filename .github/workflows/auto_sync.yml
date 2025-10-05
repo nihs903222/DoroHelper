@@ -43,7 +43,7 @@ jobs:
           echo "⬆️ 上傳版本 $TAG..."
           BaiduPCS-Go upload "releases/$TAG" "/Doro_Helper"
           echo "🧹 清理舊版本，只保留最近三個"
-          list=$(./BaiduPCS-Go ls /Doro_Helper | awk '{print $NF}' | sort -r | tail -n +4)
+          list=$(BaiduPCS-Go ls /Doro_Helper | awk '{print $NF}' | sort -r | tail -n +4)
           for old in $list; do
             echo "刪除舊版本：$old"
             BaiduPCS-Go rm -r "/Doro_Helper/$old"

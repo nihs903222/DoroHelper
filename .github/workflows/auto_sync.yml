@@ -17,6 +17,10 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y jq wget unzip
+          wget -q https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.3/BaiduPCS-Go-v3.9.3-linux-amd64.zip
+          unzip -q BaiduPCS-Go-v3.9.3-linux-amd64.zip
+          chmod +x BaiduPCS-Go-v3.9.3-linux-amd64/BaiduPCS-Go
+          sudo mv BaiduPCS-Go-v3.9.3-linux-amd64/BaiduPCS-Go /usr/local/bin/
 
       - name: 下載最新 release
         run: |
@@ -32,22 +36,14 @@ jobs:
             curl -L "$url" -o "releases/$latest_tag/$(basename $url)"
           done
 
-      - name: 安裝 BaiduPCS-Go
-        run: |
-          wget -q https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.3/BaiduPCS-Go-v3.9.3-linux-amd64.zip
-          unzip -q BaiduPCS-Go-v3.9.3-linux-amd64.zip
-          chmod +x BaiduPCS-Go-v3.9.3-linux-amd64/BaiduPCS-Go
-          sudo mv BaiduPCS-Go-v3.9.3-linux-amd64/BaiduPCS-Go /usr/local/bin/
-
       - name: 上傳至百度雲
         run: |
-          ./BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIES }}"
+          BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIES }}"
           TAG=$(cat latest_tag.txt)
           echo "📂 確保目錄 /Doro_Helper/$TAG 存在"
-          ./BaiduPCS-Go mkdir "/Doro_Helper/$TAG"
-      
+          BaiduPCS-Go mkdir "/Doro_Helper/$TAG"
           echo "⬆️ 上傳版本 $TAG..."
-          ./BaiduPCS-Go upload "releases/$TAG" "/Doro_Helper/$TAG/"
+          BaiduPCS-Go upload "releases/$TAG" "/Doro_Helper/$TAG/"
 
       - name: 清理舊版本（保留最近三個）
         run: |

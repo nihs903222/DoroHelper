@@ -39,13 +39,9 @@ jobs:
           chmod +x BaiduPCS-Go-v3.9.3-linux-amd64/BaiduPCS-Go
           sudo mv BaiduPCS-Go-v3.9.3-linux-amd64/BaiduPCS-Go /usr/local/bin/
 
-      - name: 登入百度雲
-        run: |
-          ./BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIES }}"
-          ./BaiduPCS-Go who
-
       - name: 上傳至百度雲
         run: |
+          ./BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIES }}"
           TAG=$(cat latest_tag.txt)
           echo "📂 確保目錄 /Doro_Helper/$TAG 存在"
           ./BaiduPCS-Go mkdir "/Doro_Helper/$TAG"

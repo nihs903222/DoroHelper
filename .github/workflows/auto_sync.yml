@@ -46,7 +46,7 @@ jobs:
       - name: 配置百度雲登入
         run: |
           mkdir -p ~/.config/BaiduPCS-Go
-          echo "${{ secrets.BAIDU_COOKIE }}" > ~/.config/BaiduPCS-Go/cookie.txt
+          echo "${{ secrets.BAIDU_BDUSS }}" > ~/.config/BaiduPCS-Go/cookie.txt
 
       - name: 上傳至百度雲
         run: |

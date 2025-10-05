@@ -2,7 +2,7 @@ name: Sync DoroHelper Releases to BaiduYun
 
 on:
   schedule:
-    - cron: "0 */1 * * *"  # 每 6 小時檢查一次（UTC 時間）
+    - cron: "0 */1 * * *"  # 每 1 小時檢查一次（UTC 時間）
   workflow_dispatch:
 
 jobs:

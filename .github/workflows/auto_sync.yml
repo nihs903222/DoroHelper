@@ -45,17 +45,20 @@ jobs:
 
       - name: 配置百度雲登入
         run: |
-          mkdir -p ~/.config/BaiduPCS-Go
-          echo "${{ secrets.BAIDU_BDUSS }}" > ~/.config/BaiduPCS-Go/cookie.txt
+          export BDUSS="${{ secrets.BAIDU_BDUSS }}"
+          echo "✅ 已設定 BDUSS"
+
 
       - name: 上傳至百度雲
         run: |
+          export BDUSS="${{ secrets.BAIDU_BDUSS }}"
           TAG=$(cat latest_tag.txt)
           echo "📂 確保目錄 /Doro_Helper/$TAG 存在"
           BaiduPCS-Go mkdir "/Doro_Helper/$TAG"
       
           echo "⬆️ 上傳版本 $TAG..."
           BaiduPCS-Go upload "releases/$TAG" "/Doro_Helper/$TAG"
+
 
           
       - name: 上傳至百度雲

@@ -1,0 +1,52 @@
+name: Auto Sync DoroHelper Release to Baidu Cloud
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"    # 每6小時執行一次
+  workflow_dispatch:          # 可手動觸發
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 安裝工具
+        run: |
+          sudo apt update
+          sudo apt install -y jq wget unzip
+          wget https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.8.2/BaiduPCS-Go-v3.8.2-linux-amd64.zip -O pcs.zip
+          unzip pcs.zip
+          mv BaiduPCS-Go-v3.8.2-linux-amd64/BaiduPCS-Go ./BaiduPCS-Go
+          chmod +x BaiduPCS-Go
+
+      - name: 取得 DoroHelper 最新 release
+        run: |
+          curl -s https://api.github.com/repos/1204244136/DoroHelper/releases/latest > release.json
+          cat release.json | jq -r .tag_name > latest_tag.txt
+          echo "最新版本為 $(cat latest_tag.txt)"
+
+      - name: 檢查並下載 release
+        run: |
+          mkdir releases
+          assets=$(jq -r '.assets[].browser_download_url' release.json)
+          tag=$(cat latest_tag.txt)
+          for url in $assets; do
+            echo "下載: $url"
+            wget -q "$url" -P releases/
+          done
+          echo "下載完成"
+
+      - name: 登入百度雲
+        env:
+          BDUSS: ${{ secrets.BAIDU_BDUSS }}
+        run: |
+          ./BaiduPCS-Go login -bduss="$BDUSS"
+          ./BaiduPCS-Go who
+
+      - name: 上傳到百度雲
+        run: |
+          TAG=$(cat latest_tag.txt)
+          TARGET="/Doro_Helper/${TAG}/"
+          echo "上傳至 ${TARGET}"
+          ./BaiduPCS-Go upload releases/* "$TARGET"
+          echo "上傳完成"

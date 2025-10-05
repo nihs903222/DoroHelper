@@ -47,6 +47,11 @@ jobs:
         run: |
           export BDUSS="${{ secrets.BAIDU_BDUSS }}"
           echo "✅ 已設定 BDUSS"
+          
+      - name: 測試 BDUSS 登入
+        run: |
+          export BDUSS="${{ secrets.BAIDU_BDUSS }}"
+          BaiduPCS-Go whoami
 
 
       - name: 上傳至百度雲

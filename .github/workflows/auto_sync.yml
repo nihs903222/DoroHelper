@@ -1,52 +1,69 @@
-name: Auto Sync DoroHelper Release to Baidu Cloud
+name: Sync DoroHelper Releases to BaiduYun
 
 on:
   schedule:
-    - cron: "0 */6 * * *"    # 每6小時執行一次
-  workflow_dispatch:          # 可手動觸發
+    - cron: "0 */6 * * *"  # 每 6 小時檢查一次（UTC 時間）
+  workflow_dispatch:       # 可手動觸發
 
 jobs:
   sync:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: 安裝工具
         run: |
-          sudo apt update
-          sudo apt install -y jq wget unzip
-          wget https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.8.2/BaiduPCS-Go-v3.8.2-linux-amd64.zip -O pcs.zip
-          unzip pcs.zip
-          mv BaiduPCS-Go-v3.8.2-linux-amd64/BaiduPCS-Go ./BaiduPCS-Go
-          chmod +x BaiduPCS-Go
+          sudo apt-get update
+          sudo apt-get install -y jq curl unzip
 
-      - name: 取得 DoroHelper 最新 release
+      - name: 下載最新 release
         run: |
-          curl -s https://api.github.com/repos/1204244136/DoroHelper/releases/latest > release.json
-          cat release.json | jq -r .tag_name > latest_tag.txt
-          echo "最新版本為 $(cat latest_tag.txt)"
+          mkdir -p releases
+          # 取得最新 release tag
+          latest_tag=$(curl -s https://api.github.com/repos/1204244136/DoroHelper/releases/latest | jq -r .tag_name)
+          echo "$latest_tag" > latest_tag.txt
+          echo "最新版本: $latest_tag"
 
-      - name: 檢查並下載 release
-        run: |
-          mkdir releases
-          assets=$(jq -r '.assets[].browser_download_url' release.json)
-          tag=$(cat latest_tag.txt)
+          # 建立本地版本資料夾
+          mkdir -p releases/$latest_tag
+
+          # 下載 release 資產
+          assets=$(curl -s https://api.github.com/repos/1204244136/DoroHelper/releases/tags/$latest_tag | jq -r '.assets[].browser_download_url')
           for url in $assets; do
-            echo "下載: $url"
-            wget -q "$url" -P releases/
+            echo "⬇️ 下載 $url"
+            curl -L "$url" -o "releases/$latest_tag/$(basename $url)"
           done
-          echo "下載完成"
 
-      - name: 登入百度雲
-        env:
-          BDUSS: ${{ secrets.BAIDU_BDUSS }}
+      - name: 安裝 BaiduPCS-Go
         run: |
-          ./BaiduPCS-Go login -bduss="$BDUSS"
-          ./BaiduPCS-Go who
+          wget -q https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.3/BaiduPCS-Go-v3.9.3-linux-amd64.zip
+          unzip -q BaiduPCS-Go-v3.9.3-linux-amd64.zip
+          chmod +x BaiduPCS-Go/BaiduPCS-Go
+          sudo mv BaiduPCS-Go/BaiduPCS-Go /usr/local/bin/BaiduPCS-Go
 
-      - name: 上傳到百度雲
+      - name: 配置百度雲登入
+        run: |
+          mkdir -p ~/.config/BaiduPCS-Go
+          echo "${{ secrets.BAIDU_COOKIE }}" > ~/.config/BaiduPCS-Go/cookie.txt
+
+      - name: 上傳至百度雲
         run: |
           TAG=$(cat latest_tag.txt)
-          TARGET="/Doro_Helper/${TAG}/"
-          echo "上傳至 ${TARGET}"
-          ./BaiduPCS-Go upload releases/* "$TARGET"
-          echo "上傳完成"
+          echo "📂 確保目錄 /Doro_Helper/$TAG 存在"
+          BaiduPCS-Go mkdir -p "/Doro_Helper/$TAG"
+
+          # 如果目錄已存在，會跳過上傳重複檔案
+          echo "⬆️ 上傳版本 $TAG..."
+          BaiduPCS-Go upload -force "releases/$TAG/*" "/Doro_Helper/$TAG/"
+
+      - name: 清理舊版本（保留最近三個）
+        run: |
+          echo "🧹 清理舊版本，只保留最近三個"
+          # 取得現有版本資料夾列表，排序後保留前三個
+          list=$(BaiduPCS-Go ls /Doro_Helper | awk '{print $NF}' | sort -r | tail -n +4)
+          for old in $list; do
+            echo "刪除舊版本：$old"
+            BaiduPCS-Go rm -r "/Doro_Helper/$old"
+          done

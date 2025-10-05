@@ -41,7 +41,7 @@ jobs:
           BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIES }}"
           TAG=$(cat latest_tag.txt)
           echo "⬆️ 上傳版本 $TAG..."
-          BaiduPCS-Go upload "releases" "/Doro_Helper"
+          BaiduPCS-Go upload "/Doro_Helper"
 
       - name: 清理舊版本（保留最近三個）
         run: |

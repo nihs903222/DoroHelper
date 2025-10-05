@@ -36,15 +36,12 @@ jobs:
             curl -L "$url" -o "releases/$latest_tag/$(basename $url)"
           done
 
-      - name: 上傳至百度雲
+      - name: 上傳至百度雲+清理舊版本
         run: |
           BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIES }}"
           TAG=$(cat latest_tag.txt)
           echo "⬆️ 上傳版本 $TAG..."
           BaiduPCS-Go upload "releases/$TAG" "/Doro_Helper"
-
-      - name: 清理舊版本（保留最近三個）
-        run: |
           echo "🧹 清理舊版本，只保留最近三個"
           list=$(./BaiduPCS-Go ls /Doro_Helper | awk '{print $NF}' | sort -r | tail -n +4)
           for old in $list; do

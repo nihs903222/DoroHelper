@@ -38,10 +38,12 @@ jobs:
 
       - name: 安裝 BaiduPCS-Go
         run: |
-          wget -q https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.3/BaiduPCS-Go-v3.9.3-linux-amd64.zip
-          unzip -q BaiduPCS-Go-v3.9.3-linux-amd64.zip
-          chmod +x BaiduPCS-Go        # 修正路徑
-          sudo mv BaiduPCS-Go /usr/local/bin/
+          sudo apt update
+          sudo apt install -y jq wget unzip
+          wget https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.8.2/BaiduPCS-Go-v3.8.2-linux-amd64.zip -O pcs.zip
+          unzip pcs.zip
+          mv BaiduPCS-Go-v3.8.2-linux-amd64/BaiduPCS-Go ./BaiduPCS-Go
+          chmod +x BaiduPCS-Go
 
       - name: 配置百度雲登入
         run: |

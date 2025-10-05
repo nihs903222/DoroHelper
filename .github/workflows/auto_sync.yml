@@ -40,8 +40,8 @@ jobs:
         run: |
           wget -q https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.3/BaiduPCS-Go-v3.9.3-linux-amd64.zip
           unzip -q BaiduPCS-Go-v3.9.3-linux-amd64.zip
-          chmod +x BaiduPCS-Go/BaiduPCS-Go
-          sudo mv BaiduPCS-Go/BaiduPCS-Go /usr/local/bin/BaiduPCS-Go
+          chmod +x BaiduPCS-Go        # 修正路徑
+          sudo mv BaiduPCS-Go /usr/local/bin/
 
       - name: 配置百度雲登入
         run: |
@@ -54,7 +54,7 @@ jobs:
           echo "📂 確保目錄 /Doro_Helper/$TAG 存在"
           BaiduPCS-Go mkdir -p "/Doro_Helper/$TAG"
 
-          # 如果目錄已存在，會跳過上傳重複檔案
+          # 上傳 release 檔案
           echo "⬆️ 上傳版本 $TAG..."
           BaiduPCS-Go upload -force "releases/$TAG/*" "/Doro_Helper/$TAG/"
 

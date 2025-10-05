@@ -40,10 +40,8 @@ jobs:
         run: |
           BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIES }}"
           TAG=$(cat latest_tag.txt)
-          echo "📂 確保目錄 /Doro_Helper/$TAG 存在"
-          BaiduPCS-Go mkdir "/Doro_Helper/$TAG"
           echo "⬆️ 上傳版本 $TAG..."
-          BaiduPCS-Go upload "releases/$TAG" "/Doro_Helper/$TAG/"
+          BaiduPCS-Go upload "releases" "/Doro_Helper"
 
       - name: 清理舊版本（保留最近三個）
         run: |
